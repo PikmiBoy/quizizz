@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ML Quiz Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#efeaff;--panel:#fff;--ink:#241a4d;--muted:#6b6290;--line:#d9d1f5;--accent:#6c4cf5;--ok:#1e9e5a;--bad:#d93f4c;
+--c0:#ef476f;--c1:#118ab2;--c2:#f2a900;--c3:#7b4cf5;--ink-on:#fff;--ink-on2:#2a1d00;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1240;--panel:#2a1d5e;--ink:#f3efff;--muted:#b3a8e0;--line:#44357f;--accent:#9d86ff}}
+:root[data-theme="dark"]{--bg:#1c1240;--panel:#2a1d5e;--ink:#f3efff;--muted:#b3a8e0;--line:#44357f;--accent:#9d86ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:760px;padding:20px 16px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:28px 22px}
+h1{font-size:clamp(2.2rem,8vw,3.4rem);line-height:1.05;margin:0 0 10px;font-weight:700;letter-spacing:-.01em}
+p{margin:0 0 16px;color:var(--muted);font-size:1.1rem;line-height:1.45}
+label{display:block;font-weight:600;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:1.15rem;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:18px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:16px;padding:14px 26px;font-size:1.2rem;font-weight:600;box-shadow:0 5px 0 rgba(0,0,0,.25);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.facts{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 22px;padding:0;list-style:none}
+.facts li{background:var(--bg);border-radius:12px;padding:8px 14px;font-weight:500}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;font-weight:600}
+.pill{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:6px 14px}
+.bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left;transition:transform .2s linear}
+.bar i.low{background:var(--bad)}
+.q{font-size:clamp(1.35rem,4.6vw,1.9rem);line-height:1.25;font-weight:600;margin:0 0 20px;padding:24px 20px;background:var(--panel);border:2px solid var(--line);border-radius:22px;min-height:120px;display:flex;align-items:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.ans{display:flex;align-items:center;gap:12px;text-align:left;border:0;border-radius:18px;padding:16px;min-height:78px;font-size:1.1rem;font-weight:500;color:var(--ink-on);box-shadow:0 6px 0 rgba(0,0,0,.28);transition:transform .08s,box-shadow .08s,opacity .2s}
+.ans:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.ans[data-c="0"]{background:var(--c0)}.ans[data-c="1"]{background:var(--c1)}.ans[data-c="2"]{background:var(--c2);color:var(--ink-on2)}.ans[data-c="3"]{background:var(--c3)}
+.ans svg{flex:none;width:28px;height:28px;fill:currentColor}
+.ans:disabled{cursor:default}
+.ans.dim{opacity:.35}
+.ans.right{outline:5px solid var(--ok);outline-offset:2px}
+.ans.wrong{outline:5px solid var(--bad);outline-offset:2px}
+.fb{margin-top:18px;padding:18px;border-radius:18px;background:var(--panel);border:2px solid var(--line)}
+.fb h2{margin:0 0 6px;font-size:1.4rem}
+.fb.good h2{color:var(--ok)}.fb.badc h2{color:var(--bad)}
+.fb p{margin-bottom:14px}
+.score{font-size:clamp(3rem,16vw,5.5rem);font-weight:700;line-height:1;margin:6px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.stats div{background:var(--bg);border-radius:14px;padding:12px;text-align:center}
+.stats b{display:block;font-size:1.6rem}
+.stats span{color:var(--muted);font-size:.95rem}
+.rev{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:8px}
+.rev li{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:1rem;line-height:1.35}
+.rev .m{flex:none;font-weight:700;width:1.4em}
+.rev .y{color:var(--ok)}.rev .n{color:var(--bad)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<section id="start" class="card">
+  <h1>ML Quiz Arena</h1>
+  <p>Ten questions on machine learning. Answer fast for more points and build a streak for bonuses.</p>
+  <ul class="facts"><li>10 questions</li><li>20 seconds each</li><li>4 answers</li></ul>
+  <label for="name">Your name</label>
+  <input id="name" maxlength="20" placeholder="Player" autocomplete="nickname">
+  <button class="btn" id="go">Start quiz</button>
+</section>
+
+<section id="play" hidden>
+  <div class="top"><span class="pill" id="prog">Question 1 of 10</span><span class="pill" id="streak">Streak 0</span><span class="pill" id="pts">0 pts</span></div>
+  <div class="bar"><i id="fill"></i></div>
+  <h2 class="q" id="qtext"></h2>
+  <div class="grid" id="answers"></div>
+  <div class="fb" id="fb" hidden>
+    <h2 id="fbh"></h2><p id="fbp"></p>
+    <button class="btn" id="next">Next question</button>
+  </div>
+</section>
+
+<section id="end" class="card" hidden>
+  <h1 id="endh">Done!</h1>
+  <p id="endp"></p>
+  <div class="score" id="score">0</div>
+  <div class="stats">
+    <div><b id="s1">0</b><span>correct</span></div>
+    <div><b id="s2">0%</b><span>accuracy</span></div>
+    <div><b id="s3">0</b><span>best streak</span></div>
+  </div>
+  <ul class="rev" id="rev"></ul>
+  <div class="row"><button class="btn" id="again">Play again</button></div>
+</section>
+</main>
+
+<script>
+const QUESTIONS=[
+{q:"Which type of learning trains a model on labeled examples?",a:["Supervised learning","Unsupervised learning","Reinforcement learning","Transfer clustering"],c:0,e:"Supervised learning pairs each input with a known label, so the model learns the mapping from inputs to outputs."},
+{q:"What does overfitting mean?",a:["The model is too small to learn anything","The model memorizes training data and performs poorly on new data","The model trains too fast","The model has too few features"],c:1,e:"An overfit model captures noise in the training set, so it does not generalize to unseen data."},
+{q:"Which of these is a classification task?",a:["Predicting tomorrow's temperature","Estimating a house price","Detecting whether an email is spam","Forecasting monthly sales"],c:2,e:"Classification predicts a category. Spam or not spam is a two-class problem; the others predict numbers."},
+{q:"What is the goal of gradient descent?",a:["Increase the number of features","Minimize the loss function","Split data into train and test sets","Remove outliers"],c:1,e:"Gradient descent repeatedly adjusts parameters in the direction that lowers the loss."},
+{q:"Which algorithm is an example of unsupervised learning?",a:["Linear regression","Logistic regression","K-means clustering","Decision tree classifier"],c:2,e:"K-means groups unlabeled data into clusters without any target labels."},
+{q:"What does the ReLU activation function output?",a:["max(0, x)","1 / (1 + e^-x)","tanh(x)","x squared"],c:0,e:"ReLU returns 0 for negative inputs and x for positive inputs. It is simple and helps avoid vanishing gradients."},
+{q:"Why do we keep a separate test set?",a:["To train the model for longer","To tune the learning rate","To evaluate performance on data the model has never seen","To increase the training data size"],c:2,e:"The test set gives an honest estimate of how the model will perform in the real world."},
+{q:"How is precision calculated?",a:["TP / (TP + FN)","TP / (TP + FP)","(TP + TN) / total","TN / (TN + FP)"],c:1,e:"Precision is the share of predicted positives that are truly positive: TP / (TP + FP). TP / (TP + FN) is recall."},
+{q:"Which technique helps reduce overfitting in neural networks?",a:["Dropout","Adding more layers only","Removing the validation set","Using a larger learning rate"],c:0,e:"Dropout randomly disables neurons during training, which discourages the network from relying on any single path."},
+{q:"In training, what is an epoch?",a:["One update of a single weight","One full pass through the training dataset","One batch of data","One layer of the network"],c:1,e:"An epoch is one complete pass over the entire training set. A batch is just a slice of it."}
+];
+
+const SHAPES=[
+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z"/></svg>',
+'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 22 12 12 22 2 12z"/></svg>',
+'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>',
+'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'];
+const TIME=20;
+const $=id=>document.getElementById(id);
+let i,score,streak,best,right,log,timer,left,answered,order,player;
+
+function show(id){["start","play","end"].forEach(s=>$(s).hidden=s!==id)}
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+
+function start(){
+  player=$("name").value.trim()||"Player";
+  i=0;score=0;streak=0;best=0;right=0;log=[];
+  show("play");render();
+}
+function render(){
+  const Q=QUESTIONS[i];answered=false;
+  $("prog").textContent="Question "+(i+1)+" of "+QUESTIONS.length;
+  $("streak").textContent="Streak "+streak;
+  $("pts").textContent=score+" pts";
+  $("qtext").textContent=Q.q;
+  $("fb").hidden=true;
+  order=shuffle(Q.a.map((t,k)=>({t,ok:k===Q.c})));
+  const box=$("answers");box.innerHTML="";
+  order.forEach((o,k)=>{
+    const b=document.createElement("button");
+    b.className="ans";b.dataset.c=k;
+    b.innerHTML=SHAPES[k]+"<span></span>";
+    b.lastChild.textContent=o.t;
+    b.onclick=()=>pick(k);
+    box.appendChild(b);
+  });
+  left=TIME;tick();
+  clearInterval(timer);
+  timer=setInterval(()=>{left-=0.1;if(left<=0){left=0;tick();pick(-1)}else tick()},100);
+}
+function tick(){
+  const f=$("fill");
+  f.style.transform="scaleX("+(left/TIME)+")";
+  f.classList.toggle("low",left<=5);
+}
+function pick(k){
+  if(answered)return;answered=true;clearInterval(timer);
+  const Q=QUESTIONS[i];
+  const ok=k>=0&&order[k].ok;
+  let gain=0;
+  if(ok){
+    streak++;best=Math.max(best,streak);right++;
+    gain=500+Math.round(500*left/TIME)+Math.min(streak-1,4)*50;
+    score+=gain;
+  }else streak=0;
+  log.push({q:Q.q,ok,a:Q.a[Q.c]});
+  [...$("answers").children].forEach((b,n)=>{
+    b.disabled=true;
+    if(order[n].ok)b.classList.add("right");
+    else if(n===k)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  $("streak").textContent="Streak "+streak;
+  $("pts").textContent=score+" pts";
+  const fb=$("fb");fb.hidden=false;
+  fb.className="fb "+(ok?"good":"badc");
+  $("fbh").textContent=ok?"Correct! +"+gain+" pts":(k<0?"Time's up":"Not quite");
+  $("fbp").textContent=Q.e;
+  $("next").textContent=i===QUESTIONS.length-1?"See results":"Next question";
+  $("next").focus({preventScroll:true});
+  fb.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function next(){
+  if(i<QUESTIONS.length-1){i++;render();window.scrollTo(0,0)}else finish();
+}
+function finish(){
+  show("end");window.scrollTo(0,0);
+  const n=QUESTIONS.length,pct=Math.round(100*right/n);
+  $("endh").textContent=pct>=80?"Great work, "+player+"!":pct>=50?"Nice try, "+player+"!":"Keep practicing, "+player+"!";
+  $("endp").textContent=pct>=80?"You know your machine learning basics.":pct>=50?"Solid start. Review the misses below and try again.":"Check the answers below, then play another round.";
+  $("score").textContent=score+" pts";
+  $("s1").textContent=right+"/"+n;$("s2").textContent=pct+"%";$("s3").textContent=best;
+  const ul=$("rev");ul.innerHTML="";
+  log.forEach(r=>{
+    const li=document.createElement("li");
+    const m=document.createElement("span");m.className="m "+(r.ok?"y":"n");m.textContent=r.ok?"✓":"✗";
+    const t=document.createElement("span");t.textContent=r.q+" Answer: "+r.a;
+    li.append(m,t);ul.appendChild(li);
+  });
+}
+$("go").onclick=start;
+$("name").addEventListener("keydown",e=>{if(e.key==="Enter")start()});
+$("next").onclick=next;
+$("again").onclick=()=>{show("start");window.scrollTo(0,0)};
+</script>
+</body>
+</html>
